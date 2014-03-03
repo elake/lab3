@@ -1,0 +1,50 @@
+#---------------------------------------------------------------
+# Assignment:           3
+# Due Date:             March 3, 2014
+# Name:                 Eldon Lake
+# Unix ID:              elake
+# Lecture Section:      B1
+# Instructor:           Jacqueline Smith
+# Lab Section:          H02 (Wednesday 1400 - 1700)
+# Teaching Assistant:   Mike Mills
+#---------------------------------------------------------------
+
+.text
+#---------------------------------------------------------------
+# The handlePacket subroutine inspects a packet and if it is a
+# valid candidate for forwarding, prepares it for forwarding,
+# otherwise it drops it and specifies the reason for doing so.
+#
+# Arguments:
+# 	$a0: The address of the packet to be inspected
+# Registers:
+#
+#---------------------------------------------------------------
+
+handlePacket:	
+	lw $t0 0($a0)		# $t0 <- the first word of the packet
+checkVersion:	
+	srl $t1 $t0 28		# Isolate IP version
+	li $t2 0x00000004	# IPV4
+	beq $t1 $t2 checkTTL	# If version is IPV4, check TTL
+	li $v1 2		# invalid IPv4 packet format
+	li $v0 0		# drop packet
+	jr $ra
+checkHeader:
+	#TODO
+	beq $t0 $t0 checkTTL
+	li $v1 0		# Checksum fail
+	li $v0 0		# drop packet
+	jr $ra
+checkTLL:
+	lw $t0 8($a0)		# Load word at bit offset 64
+	srl $t1 $t0 24		# Isolate TTL
+	slti $t1 $t1 2		# $t1 <- 1 if ttl expired
+	beq $t1 $0 preparePacket # Prepare packet for forwarding
+	li $v1 1		# TTL Zeroed
+	li $v0 0		# drop packet
+	jr $ra
+preparePacket:
+	
+exit:
+	jr $ra
