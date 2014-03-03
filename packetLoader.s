@@ -71,7 +71,7 @@ checkHeader:
 	sw $t0 8($a0)		# Replace word in packet with zero'd checksum	
 	lw $t0 0($a0)		# Load first word
 	sll $t0 $t0 28		# Isolate header length
-	srl $t0 $t0 4		# Isolate header length
+	srl $t0 $t0 28		# Isolate header length
 	li $t1 0		# Accumulator = 0
 	add $t2 $a0 $0		# $t2 <- $a0
 loop1:
@@ -120,17 +120,16 @@ checkTTL:
 	jr $ra
 preparePacket:
 	lw $t0 8($a0)		# Start with TTL word
-	srl $t1 $t0 24		# Isolate TTL
+	andi $t1 $t0 0x000000ff	# Isolate TTL
 	addi $t1 $t1 -1		# Decrement TTL
-	sll $t1 $t1 24		# Realign new TTL
-	sll $t0 $t0 8		# Eliminate TTL in original
-	srl $t0 $t0 24		# Zero checksum for new checksum
-	sll $t0 $t0 16		# Realign original word
+	srl $t0 $t0 8		# Eliminate TTL in original
+	sll $t0 $t0 24		# Zero checksum for new checksum
+	srl $t0 $t0 16		# Realign original word
 	and $t0 $t0 $t1		# Place new TTL in word
 	sw $t0 8($a0)		# Replace word in packet with new TTL and zero'd checksum
 calculateChecksum:	
 	lw $t0 0($a0)		# Load first word
-	sll $t0 $t0 4		# Isolate header length
+	sll $t0 $t0 28		# Isolate header length
 	srl $t0 $t0 28		# Isolate header length
 	li $t1 0		# Accumulator = 0
 	add $t2 $a0 $0		# $t2 <- $a0
@@ -161,10 +160,10 @@ exitloop:
 	xor $t1 $t1 $t7 	# Take the complement of the accumulator
 	lw $t0 8($a0)		# Load the TTL decremented word to give checksum
 	andi $t2 $t1 0x000000ff # Isolate the first byte of half-word
-	sll $t2 $t2 8		# Move byte into big endianness
+	sll $t2 $t2 24		# Move byte into big endianness
 	and $t0 $t0 $t2		# Add first byte of checksum into packet
 	andi $t2 $t1 0x0000ff00 # Isolate second byte of half-word
-	srl $t2 $t2 8		# Move byte into big endianness
+	sll $t2 $t2 8		# Move byte into big endianness
 	and $t0 $t0 $t2		# Add second byte of checksum into packet
 	sw $t0 8($a0)		# Update the packet, ready to forward
 	li $v0 1		# $v0 <- 1
