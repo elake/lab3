@@ -1,0 +1,54 @@
+#-------------------------------
+# Packet Forwarding Student Test Environment
+# Author: Taylor Lloyd
+# Date: June 4, 2012
+#
+# This code loads in a packet from a file named 
+# packet.in and calls handlePacket with the 
+# appropriate argument.
+#
+# Nothing is done with the returned values, it is up
+# to the student to check them.
+#
+#-------------------------------
+
+.data
+
+packetFile:
+.asciiz "./packet.dat"
+.align 2
+packetData:
+.space 200
+
+.text
+main:
+#Open the packet file
+	la	$a0 packetFile #filename
+	li	$a1 0x00 #flags
+	li	$a2 0x0644 #file mode
+	li	$v0 13 
+	syscall #file_open
+#Read into buffer
+	move 	$a0 $v0
+	la	$a1 packetData
+	li	$a2 200
+	li	$v0 14
+	syscall #file_read
+#Close the reading file
+	li	$v0 16
+	syscall
+
+#Run the appended solution
+	la	$a0 packetData
+	jal	handlePacket
+################### Here the solution can be checked for accuracy #######
+	add $a0 $v0 $0
+	li $v0 1
+	syscall
+	add $a0 $v1 $0
+	li $v0 1
+	syscall
+
+	li	$v0 10
+	syscall
+################### Student handlePacket code begins here ###############

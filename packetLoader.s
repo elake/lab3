@@ -81,7 +81,7 @@ loop1:
 	sll $t4 $t4 8		# Move byte into little endianness
 	andi $t5 $t3 0x0000ff00 # Isolate second byte of half-word
 	srl $t5 $t5 8		# Move byte into little endianness
-	and $t4 $t5 $t4		# Combine halfword into little endian halfword
+	add $t4 $t5 $t4		# Combine halfword into little endian halfword
 	add $t1 $t1 $t4		# Add to accumulator
 	li $t7 0x00ff0000	# Can't andi directly with >16 bits
 	and $t4 $t3 $t7 	# Isolate first byte of next half-word
@@ -89,7 +89,7 @@ loop1:
 	li $t7 0xff000000	# Can't andi directly with >16 bits
 	and $t5 $t3 $t7 	# Isolate second byte of half-word
 	srl $t5 $t5 24		# Move byte into little endianness
-	and $t4 $t5 $t4		# Combine halfword into little endian halfword
+	add $t4 $t5 $t4		# Combine halfword into little endian halfword
 	add $t1 $t1 $t4		# Add to accumulator
 	addi $t0 $t0 -1		# Decerement words remaining in header
 	addi $t2 $t2 4		# Move onto next word of header
@@ -102,10 +102,10 @@ exitloop1:
 	li $t0 0		# $t0 will hold the big endian checksum
 	andi $t2 $t1 0x000000ff # Isolate the first byte of half-word
 	sll $t2 $t2 24		# Move byte into big endianness
-	and $t0 $t0 $t2		# Add first byte of checksum into packet
+	add $t0 $t0 $t2		# Add first byte of checksum into packet
 	andi $t2 $t1 0x0000ff00 # Isolate second byte of half-word
 	sll $t2 $t2 8		# Move byte into big endianness
-	and $t0 $t0 $t2		# Add second byte of checksum into packet
+	add $t0 $t0 $t2		# Add second byte of checksum into packet
 	beq $t0 $t6 checkTTL
 	li $v1 0		# Checksum fail
 	li $v0 0		# drop packet
@@ -140,7 +140,7 @@ loop:
 	sll $t4 $t4 8		# Move byte into little endianness
 	andi $t5 $t3 0x0000ff00 # Isolate second byte of half-word
 	srl $t5 $t5 8		# Move byte into little endianness
-	and $t4 $t5 $t4		# Combine halfword into little endian halfword
+	add $t4 $t5 $t4		# Combine halfword into little endian halfword
 	add $t1 $t1 $t4		# Add to accumulator
 	li $t7 0x00ff0000	# Can't andi directly with >16 bits
 	and $t4 $t3 $t7		# Isolate first byte of next half-word
@@ -148,7 +148,7 @@ loop:
 	li $t7 0xff000000	# Can't andi directly with >16 bits
 	and $t5 $t3 $t7 	# Isolate second byte of half-word
 	srl $t5 $t5 24		# Move byte into little endianness
-	and $t4 $t5 $t4		# Combine halfword into little endian halfword
+	add $t4 $t5 $t4		# Combine halfword into little endian halfword
 	add $t1 $t1 $t4		# Add to accumulator
 	addi $t0 $t0 -1		# Decerement words remaining in header
 	addi $t2 $t2 4		# Move onto next word of header
@@ -161,10 +161,10 @@ exitloop:
 	lw $t0 8($a0)		# Load the TTL decremented word to give checksum
 	andi $t2 $t1 0x000000ff # Isolate the first byte of half-word
 	sll $t2 $t2 24		# Move byte into big endianness
-	and $t0 $t0 $t2		# Add first byte of checksum into packet
+	add $t0 $t0 $t2		# Add first byte of checksum into packet
 	andi $t2 $t1 0x0000ff00 # Isolate second byte of half-word
 	sll $t2 $t2 8		# Move byte into big endianness
-	and $t0 $t0 $t2		# Add second byte of checksum into packet
+	add $t0 $t0 $t2		# Add second byte of checksum into packet
 	sw $t0 8($a0)		# Update the packet, ready to forward
 	li $v0 1		# $v0 <- 1
 	add $v1 $a0 $0		# $v1 <- $a0
