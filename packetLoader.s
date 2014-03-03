@@ -15,7 +15,7 @@
 .data
 
 packetFile:
-.asciiz "./packet.dat"
+.asciiz "./almostexpired.dat"
 .align 2
 packetData:
 .space 200
