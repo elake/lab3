@@ -55,7 +55,8 @@ main:
 handlePacket:	
 	lw $t0 0($a0)		# $t0 <- the first word of the packet
 checkVersion:	
-	srl $t1 $t0 28		# Isolate IP version
+	sll $t1 $t0 24		# Isolate IP version
+	srl $t1 $t1 28		# Isolate IP version
 	li $t2 4		# IPV4
 	beq $t1 $t2 checkHeader	# If version is IPV4, check header
 	li $v1 2		# invalid IPv4 packet format
@@ -63,14 +64,14 @@ checkVersion:
 	jr $ra
 checkHeader:
 	lw $t0 8($a0)		# Start with checksum word
-	li $t7 0x0000ffff	# Can't andi directly with 16 bits
+	li $t7 0xffff0000	# Can't andi directly with 16 bits
 	and $t6 $t0 $t7 	# Store original checksum
-	srl $t0 $t0 16		# Zero checksum
-	sll $t0 $t0 16		# Realign original word
+	sll $t0 $t0 16		# Zero checksum
+	srl $t0 $t0 16		# Realign original word
 	sw $t0 8($a0)		# Replace word in packet with zero'd checksum	
 	lw $t0 0($a0)		# Load first word
-	sll $t0 $t0 4		# Isolate header length
-	srl $t0 $t0 28		# Isolate header length
+	sll $t0 $t0 28		# Isolate header length
+	srl $t0 $t0 4		# Isolate header length
 	li $t1 0		# Accumulator = 0
 	add $t2 $a0 $0		# $t2 <- $a0
 loop1:
@@ -100,10 +101,10 @@ exitloop1:
 	xor $t1 $t1 $t7 	# Take the complement of the accumulator
 	li $t0 0		# $t0 will hold the big endian checksum
 	andi $t2 $t1 0x000000ff # Isolate the first byte of half-word
-	sll $t2 $t2 8		# Move byte into big endianness
+	sll $t2 $t2 24		# Move byte into big endianness
 	and $t0 $t0 $t2		# Add first byte of checksum into packet
 	andi $t2 $t1 0x0000ff00 # Isolate second byte of half-word
-	srl $t2 $t2 8		# Move byte into big endianness
+	sll $t2 $t2 8		# Move byte into big endianness
 	and $t0 $t0 $t2		# Add second byte of checksum into packet
 	beq $t0 $t6 checkTTL
 	li $v1 0		# Checksum fail
@@ -111,7 +112,7 @@ exitloop1:
 	jr $ra
 checkTTL:
 	lw $t0 8($a0)		# Load word at bit offset 64
-	srl $t1 $t0 24		# Isolate TTL
+	andi $t1 $t0 0x000000ff	# Isolate TTL
 	slti $t1 $t1 2		# $t1 <- 1 if ttl expired
 	beq $t1 $0 preparePacket # Prepare packet for forwarding
 	li $v1 1		# TTL Zeroed
